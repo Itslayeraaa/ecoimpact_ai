@@ -45,7 +45,7 @@ FE_TRANSPORTE = 0.12
 detalle = {
     "Energía": energia * FE_ENERGIA,
     "Combustible": combustible * FE_COMBUSTIBLE,
-    "Residuos": residuos * FE_RESIDOS,
+    "Residuos": residuos * FE_RESIDUOS,
     "Transporte": transporte * FE_TRANSPORTE
 }
 total_emisiones = sum(detalle.values())
