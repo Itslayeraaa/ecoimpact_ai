@@ -58,7 +58,7 @@ if st.button("Calcular impacto"):
 
     total_emisiones = emisiones_energia + emisiones_combustible + emisiones_residuos + emisiones_transporte
 
-    st.success(f"🌍 Emisiones totales: **{total_emisiones:.2f} kg CO₂e**")
+    st.markdown(f"<h2 style='color:#2ca02c;'>🌍 Emisiones totales: {total_emisiones:.2f} kg CO₂e</h2>", unsafe_allow_html=True)
 
     # Mostrar detalle en columnas
     col1, col2 = st.columns(2)
@@ -70,7 +70,7 @@ if st.button("Calcular impacto"):
         st.metric("Transporte (kg CO₂e)", f"{emisiones_transporte:.2f}")
 
     # -------------------------
-    # Gráfica de barras
+    # Gráfica de barras moderna
     # -------------------------
     datos = {
         "Categoría": ["Energía", "Combustible", "Residuos", "Transporte"],
@@ -79,11 +79,27 @@ if st.button("Calcular impacto"):
     df = pd.DataFrame(datos)
 
     st.subheader("Detalle gráfico de emisiones")
-    fig, ax = plt.subplots()
-    ax.bar(df["Categoría"], df["Emisiones (kg CO₂e)"], color=["#2ca02c","#ff7f0e","#1f77b4","#d62728"])
-    ax.set_ylabel("kg CO₂e")
-    ax.set_title("Emisiones por categoría")
-    st.pyplot(fig)
+    fig, ax = plt.subplots(figsize=(6,4), facecolor="none")
+    categorias = df["Categoría"]
+    valores = df["Emisiones (kg CO₂e)"]
+    colores = ["#2ca02c", "#ff7f0e", "#1f77b4", "#d62728"]
+
+    bars = ax.bar(categorias, valores, color=colores, alpha=0.85, edgecolor="white", linewidth=1.5)
+    ax.set_facecolor("none")
+    ax.tick_params(colors='black', labelsize=12)
+    ax.set_ylabel("kg CO₂e", color="black", fontsize=12)
+    ax.set_title("Emisiones por categoría", color="black", fontsize=14)
+
+    # Valores encima de cada barra
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2, height + 0.5, f'{height:.2f}', ha='center', va='bottom', color="black", fontsize=12)
+
+    # Bordes superior y derecho ocultos
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    st.pyplot(fig, transparent=True)
 
 # -------------------------
 # Segundo banner abajo
