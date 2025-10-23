@@ -87,10 +87,9 @@ def generar_pdf():
     pdf.cell(0, 10, f"Total emisiones: {round(total_emisiones, 2)} kg CO2e", ln=True)
     pdf.cell(0, 10, f"Referencia recomendada: {BENCHMARK} kg CO2e", ln=True)
 
-    # Guardar en buffer para descarga
-    pdf_buffer = BytesIO()
-    pdf.output(pdf_buffer)
-    pdf_buffer.seek(0)
+    # Convertir a bytes para Streamlit
+    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_buffer = BytesIO(pdf_bytes)
     return pdf_buffer
 
 st.subheader("📥 Descargar informe")
