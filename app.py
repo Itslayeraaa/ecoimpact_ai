@@ -22,18 +22,18 @@ combustible = st.number_input("Combustible usado (litros/mes)", min_value=0.0, k
 residuos = st.number_input("Residuos generados (kg/mes)", min_value=0.0, key="residuos", value=150.0)
 transporte = st.number_input("Distancia transporte (km/mes)", min_value=0.0, key="transporte", value=300.0)
 
-# --- Simulación de reducción ---
+# --- Sliders de reducción ---
 st.subheader("⚡ Simulación de reducción de emisiones")
-reduccion_energia = st.slider("Reducir consumo de energía (%)", 0, 50, 0, key="reduccion_energia")
-reduccion_combustible = st.slider("Reducir combustible (%)", 0, 50, 0, key="reduccion_combustible")
-reduccion_residuos = st.slider("Reducir residuos (%)", 0, 50, 0, key="reduccion_residuos")
-reduccion_transporte = st.slider("Reducir transporte (%)", 0, 50, 0, key="reduccion_transporte")
+reduccion_energia = st.slider("Reducir consumo de energía (%)", 0, 50, 0)
+reduccion_combustible = st.slider("Reducir combustible (%)", 0, 50, 0)
+reduccion_residuos = st.slider("Reducir residuos (%)", 0, 50, 0)
+reduccion_transporte = st.slider("Reducir transporte (%)", 0, 50, 0)
 
 # Aplicar reducciones
-energia *= (1 - reduccion_energia/100)
-combustible *= (1 - reduccion_combustible/100)
-residuos *= (1 - reduccion_residuos/100)
-transporte *= (1 - reduccion_transporte/100)
+energia *= (1 - reduccion_energia / 100)
+combustible *= (1 - reduccion_combustible / 100)
+residuos *= (1 - reduccion_residuos / 100)
+transporte *= (1 - reduccion_transporte / 100)
 
 # --- Botón para calcular ---
 if st.button("💚 Calcular impacto"):
@@ -43,24 +43,24 @@ if st.button("💚 Calcular impacto"):
     FE_RESIDUOS = 1.9
     FE_TRANSPORTE = 0.12
 
-    # Cálculo de emisiones por categoría
+    # Calcular emisiones por categoría
     detalle = {
         "Categoría": ["Energía", "Combustible", "Residuos", "Transporte"],
         "Emisiones (kg CO₂e)": [
-            energia*FE_ENERGIA,
-            combustible*FE_COMBUSTIBLE,
-            residuos*FE_RESIDUOS,
-            transporte*FE_TRANSPORTE
+            energia * FE_ENERGIA,
+            combustible * FE_COMBUSTIBLE,
+            residuos * FE_RESIDUOS,
+            transporte * FE_TRANSPORTE
         ]
     }
 
     df = pd.DataFrame(detalle)
     total = df["Emisiones (kg CO₂e)"].sum()
 
-    # --- Resultados ---
+    # --- Mostrar resultados ---
     st.success(f"Emisiones totales: {total:.2f} kg CO₂e")
     st.subheader("📊 Detalle por categoría")
-    st.dataframe(df.style.background_gradient(subset=["Emisiones (kg CO₂e)"], cmap="Greens"))
+    st.dataframe(df)  # tabla sin estilo para evitar errores de matplotlib
 
     # --- Gráfico de barras ---
     chart = alt.Chart(df).mark_bar(color="#2E8B57").encode(
