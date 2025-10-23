@@ -59,16 +59,19 @@ if st.button("Calcular impacto"):
 
     total_emisiones = emisiones_energia + emisiones_combustible + emisiones_residuos + emisiones_transporte
 
-    # Recuadro atractivo para el total de emisiones
+    # -------------------------
+    # Recuadro futurista para el total
+    # -------------------------
     st.markdown(f"""
         <div style="
-            background-color:#2ca02c; 
-            padding:20px; 
-            border-radius:10px; 
+            background: linear-gradient(135deg, #00f0ff, #2ca02c);
+            padding:25px; 
+            border-radius:15px; 
             text-align:center;
             color:white;
-            font-size:24px;
-            font-weight:bold;">
+            font-size:26px;
+            font-weight:bold;
+            box-shadow: 0 0 20px #00f0ff, 0 0 40px #2ca02c;">
             🌍 Emisiones totales: {total_emisiones:.2f} kg CO₂e
         </div>
     """, unsafe_allow_html=True)
@@ -82,7 +85,9 @@ if st.button("Calcular impacto"):
         st.metric("Residuos (kg CO₂e)", f"{emisiones_residuos:.2f}")
         st.metric("Transporte (kg CO₂e)", f"{emisiones_transporte:.2f}")
 
-    # Gráfica compacta
+    # -------------------------
+    # Gráfica futurista y compacta
+    # -------------------------
     datos = {
         "Categoría": ["Energía", "Combustible", "Residuos", "Transporte"],
         "Emisiones (kg CO₂e)": [emisiones_energia, emisiones_combustible, emisiones_residuos, emisiones_transporte]
@@ -90,21 +95,21 @@ if st.button("Calcular impacto"):
     df = pd.DataFrame(datos)
 
     st.subheader("Detalle gráfico de emisiones")
-    fig, ax = plt.subplots(figsize=(5,3), facecolor="none")
+    fig, ax = plt.subplots(figsize=(4,2), facecolor="none")
     categorias = df["Categoría"]
     valores = df["Emisiones (kg CO₂e)"]
-    colores = ["#2ca02c", "#ff7f0e", "#1f77b4", "#d62728"]
+    colores = ["#00f0ff", "#2ca02c", "#ff00ff", "#ff7f0e"]
 
-    bars = ax.bar(categorias, valores, color=colores, alpha=0.85, edgecolor="white", linewidth=1.2)
+    bars = ax.bar(categorias, valores, color=colores, alpha=0.85, edgecolor="white", linewidth=1.5)
     ax.set_facecolor("none")
-    ax.tick_params(colors='white', labelsize=10)
-    ax.set_ylabel("kg CO₂e", color="white", fontsize=10)
-    ax.set_title("Emisiones por categoría", color="white", fontsize=12)
+    ax.tick_params(colors='white', labelsize=9)
+    ax.set_ylabel("kg CO₂e", color="white", fontsize=9)
+    ax.set_title("Emisiones por categoría", color="white", fontsize=11)
 
     # Valores encima de cada barra
     for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2, height + 0.5, f'{height:.2f}', ha='center', va='bottom', color="white", fontsize=10)
+        ax.text(bar.get_x() + bar.get_width()/2, height + 0.3, f'{height:.2f}', ha='center', va='bottom', color="white", fontsize=9)
 
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
