@@ -39,6 +39,37 @@ transporte *= (1 - reduccion_transporte/100)
 if st.button("💚 Calcular impacto"):
     # Factores de emisión
     FE_ENERGIA = 0.233
-    FE_COMBUSTIBLE_
+    FE_COMBUSTIBLE = 2.68
+    FE_RESIDUOS = 1.9
+    FE_TRANSPORTE = 0.12
 
+    # Cálculo de emisiones por categoría
+    detalle = {
+        "Categoría": ["Energía", "Combustible", "Residuos", "Transporte"],
+        "Emisiones (kg CO₂e)": [
+            energia*FE_ENERGIA,
+            combustible*FE_COMBUSTIBLE,
+            residuos*FE_RESIDUOS,
+            transporte*FE_TRANSPORTE
+        ]
+    }
 
+    df = pd.DataFrame(detalle)
+    total = df["Emisiones (kg CO₂e)"].sum()
+
+    # --- Resultados ---
+    st.success(f"Emisiones totales: {total:.2f} kg CO₂e")
+    st.subheader("📊 Detalle por categoría")
+    st.dataframe(df.style.background_gradient(subset=["Emisiones (kg CO₂e)"], cmap="Greens"))
+
+    # --- Gráfico de barras ---
+    chart = alt.Chart(df).mark_bar(color="#2E8B57").encode(
+        x='Categoría',
+        y='Emisiones (kg CO₂e)',
+        tooltip=['Categoría', 'Emisiones (kg CO₂e)']
+    ).properties(width=600)
+    
+    st.altair_chart(chart, use_container_width=True)
+
+# --- Información de ejemplo ---
+st.info("💡 Ejemplo de datos para probar la app: Oficina pequeña → Energía: 1200 kWh, Combustible: 50 L, Transporte: 300 km, Residuos: 150 kg")
