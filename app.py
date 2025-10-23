@@ -1,18 +1,16 @@
 import streamlit as st
 import random
-import pandas as pd
-import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="EcoImpact AI", layout="wide", page_icon="🌱")
 
 # -------------------------
-# Título de la app
+# Título
 # -------------------------
 st.title("EcoImpact AI 🌱")
 st.markdown("Calcula el impacto ambiental de tu empresa fácilmente")
 
 # -------------------------
-# Banners de anuncios (rotativos)
+# Banners de anuncios
 # -------------------------
 banners = [
     {"img":"https://via.placeholder.com/728x90.png?text=Publicidad+1","link":"https://example.com/ad1"},
@@ -20,7 +18,6 @@ banners = [
     {"img":"https://via.placeholder.com/728x90.png?text=Publicidad+3","link":"https://example.com/ad3"}
 ]
 
-# Banner superior
 ad = random.choice(banners)
 st.image(ad["img"], use_column_width=True)
 st.markdown(f"[Visitar anunciante]({ad['link']})")
@@ -41,6 +38,18 @@ with col2:
     transporte = st.number_input("Transporte recorrido (km)", min_value=0.0, value=0.0, step=5.0)
 
 # -------------------------
+# Reducción por porcentaje
+# -------------------------
+st.subheader("Reducción por categoría (%)")
+col1, col2 = st.columns(2)
+with col1:
+    energia_red = st.slider("Energía", 0, 100, 0)
+    combustible_red = st.slider("Combustible", 0, 100, 0)
+with col2:
+    residuos_red = st.slider("Residuos", 0, 100, 0)
+    transporte_red = st.slider("Transporte", 0, 100, 0)
+
+# -------------------------
 # Factores de emisión
 # -------------------------
 FE_ENERGIA = 0.233
@@ -49,74 +58,57 @@ FE_RESIDUOS = 1.9
 FE_TRANSPORTE = 0.12
 
 # -------------------------
-# Cálculo y visualización
+# Cálculo
 # -------------------------
 if st.button("Calcular impacto"):
-    emisiones_energia = energia * FE_ENERGIA
-    emisiones_combustible = combustible * FE_COMBUSTIBLE
-    emisiones_residuos = residuos * FE_RESIDUOS
-    emisiones_transporte = transporte * FE_TRANSPORTE
+    emisiones = {
+        "Energía": energia * FE_ENERGIA,
+        "Combustible": combustible * FE_COMBUSTIBLE,
+        "Residuos": residuos * FE_RESIDUOS,
+        "Transporte": transporte * FE_TRANSPORTE
+    }
 
-    total_emisiones = emisiones_energia + emisiones_combustible + emisiones_residuos + emisiones_transporte
+    reducciones = {
+        "Energía": emisiones["Energía"] * energia_red / 100,
+        "Combustible": emisiones["Combustible"] * combustible_red / 100,
+        "Residuos": emisiones["Residuos"] * residuos_red / 100,
+        "Transporte": emisiones["Transporte"] * transporte_red / 100
+    }
+
+    emisiones_finales = {cat: emisiones[cat] - reducciones[cat] for cat in emisiones}
+    total_actual = sum(emisiones.values())
+    total_final = sum(emisiones_finales.values())
 
     # -------------------------
-    # Recuadro simple para total
+    # Recuadro de totales elegante
     # -------------------------
     st.markdown(f"""
-        <div style="
-            background-color:#4CAF50;
-            padding:15px; 
-            border-radius:10px; 
-            text-align:center;
-            color:white;
-            font-size:22px;
-            font-weight:bold;">
-            🌍 Emisiones totales: {total_emisiones:.2f} kg CO₂e
-        </div>
+    <div style="
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        padding:20px;
+        border-radius:15px;
+        text-align:center;
+        color:white;
+        font-size:22px;
+        font-weight:bold;">
+        🌍 Total emisiones actuales: {total_actual:.2f} kg CO₂e<br>
+        💡 Total emisiones tras reducción: {total_final:.2f} kg CO₂e
+    </div>
     """, unsafe_allow_html=True)
 
-    # Detalle en columnas
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Energía (kg CO₂e)", f"{emisiones_energia:.2f}")
-        st.metric("Combustible (kg CO₂e)", f"{emisiones_combustible:.2f}")
-    with col2:
-        st.metric("Residuos (kg CO₂e)", f"{emisiones_residuos:.2f}")
-        st.metric("Transporte (kg CO₂e)", f"{emisiones_transporte:.2f}")
-
     # -------------------------
-    # Gráfica más pequeña y simple
+    # Barras de porcentaje de colores
     # -------------------------
-    datos = {
-        "Categoría": ["Energía", "Combustible", "Residuos", "Transporte"],
-        "Emisiones (kg CO₂e)": [emisiones_energia, emisiones_combustible, emisiones_residuos, emisiones_transporte]
-    }
-    df = pd.DataFrame(datos)
+    st.subheader("Detalle por categoría")
+    colores = {"Energía":"#4caf50", "Combustible":"#ff9800", "Residuos":"#2196f3", "Transporte":"#f44336"}
 
-    st.subheader("Detalle gráfico de emisiones")
-    fig, ax = plt.subplots(figsize=(3,2))  # mucho más pequeña
-    categorias = df["Categoría"]
-    valores = df["Emisiones (kg CO₂e)"]
-    colores = ["#4CAF50", "#2196F3", "#FFC107", "#FF5722"]
-
-    bars = ax.bar(categorias, valores, color=colores, alpha=0.9)
-    ax.set_facecolor("white")
-    ax.tick_params(colors='black', labelsize=8)
-    ax.set_ylabel("kg CO₂e", color="black", fontsize=8)
-    ax.set_title("Emisiones por categoría", color="black", fontsize=10)
-
-    # Valores encima de cada barra
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2, height + 0.1, f'{height:.2f}', ha='center', va='bottom', color="black", fontsize=8)
-
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-
-    st.pyplot(fig)
+    for cat in emisiones:
+        porcentaje = int((emisiones_finales[cat]/emisiones[cat])*100) if emisiones[cat] != 0 else 0
+        st.markdown(f"**{cat}**: {emisiones_finales[cat]:.2f} kg CO₂e ({porcentaje}% del original)")
+        st.progress(porcentaje)
 
 # -------------------------
-# Banner inferior
+# Segundo banner abajo
 # -------------------------
 ad2 = random.choice(banners)
 st.markdown("---")
