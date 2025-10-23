@@ -42,31 +42,31 @@ emisiones_transporte = transporte * FE_TRANSPORTE
 total_emisiones = emisiones_energia + emisiones_combustible + emisiones_residuos + emisiones_transporte
 
 # --- Benchmark / referencia ---
-BENCHMARK = 5000  # kg CO2e recomendado para referencia
+BENCHMARK = 5000  # kg CO2e recomendado
 
 # --- Resultados ---
 st.subheader("📊 Resultados")
-st.markdown(f"<h2 style='color:green; text-align:center;'>Total de emisiones: {round(total_emisiones, 2)} kg CO₂e</h2>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align:center;'>Referencia recomendada: {BENCHMARK} kg CO₂e</p>", unsafe_allow_html=True)
+st.markdown(f"<h2 style='color:green; text-align:center;'>Total de emisiones: {round(total_emisiones, 2)} kg CO2e</h2>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align:center;'>Referencia recomendada: {BENCHMARK} kg CO2e</p>", unsafe_allow_html=True)
 
 # --- Gráfica comparativa ---
 df = pd.DataFrame({
     "Categoría": ["Energía", "Combustible", "Residuos", "Transporte", "Benchmark"],
-    "Emisiones (kg CO₂e)": [emisiones_energia, emisiones_combustible, emisiones_residuos, emisiones_transporte, BENCHMARK]
+    "Emisiones (kg CO2e)": [emisiones_energia, emisiones_combustible, emisiones_residuos, emisiones_transporte, BENCHMARK]
 })
 
 chart = alt.Chart(df).mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5).encode(
     x=alt.X("Categoría", sort=None, title=None),
-    y=alt.Y("Emisiones (kg CO₂e)", title="Emisiones (kg CO₂e)"),
-    color=alt.Color("Emisiones (kg CO₂e)", scale=alt.Scale(scheme="greens")),
-    tooltip=["Categoría", "Emisiones (kg CO₂e)"]
+    y=alt.Y("Emisiones (kg CO2e)", title="Emisiones (kg CO2e)"),
+    color=alt.Color("Emisiones (kg CO2e)", scale=alt.Scale(scheme="greens")),
+    tooltip=["Categoría", "Emisiones (kg CO2e)"]
 ).properties(width=700, height=450)
 
 st.altair_chart(chart, use_container_width=True)
 
 # --- Detalle por categoría ---
 st.subheader("Detalle de emisiones por categoría")
-st.table(df[:-1].style.format({"Emisiones (kg CO₂e)": "{:.2f}"}))
+st.table(df[:-1].style.format({"Emisiones (kg CO2e)": "{:.2f}"}))
 
 # --- Generar PDF ---
 def generar_pdf():
@@ -76,16 +76,18 @@ def generar_pdf():
     pdf.cell(0, 10, "Informe de Emisiones EcoImpact AI", ln=True, align="C")
     pdf.ln(10)
     pdf.set_font("Arial", "", 12)
-    pdf.cell(0, 10, f"Consumo de energía: {energia} kWh", ln=True)
+    
+    # Reemplazo de caracteres especiales para evitar UnicodeEncodeError
+    pdf.cell(0, 10, f"Consumo de energia: {energia} kWh", ln=True)
     pdf.cell(0, 10, f"Consumo de combustible: {combustible} litros", ln=True)
     pdf.cell(0, 10, f"Residuos generados: {residuos} kg", ln=True)
     pdf.cell(0, 10, f"Distancia transporte: {transporte} km", ln=True)
     pdf.ln(5)
     pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 10, f"Total emisiones: {round(total_emisiones, 2)} kg CO₂e", ln=True)
-    pdf.cell(0, 10, f"Referencia recomendada: {BENCHMARK} kg CO₂e", ln=True)
+    pdf.cell(0, 10, f"Total emisiones: {round(total_emisiones, 2)} kg CO2e", ln=True)
+    pdf.cell(0, 10, f"Referencia recomendada: {BENCHMARK} kg CO2e", ln=True)
 
-    # Guardar en un buffer para descargar
+    # Guardar en buffer para descarga
     pdf_buffer = BytesIO()
     pdf.output(pdf_buffer)
     pdf_buffer.seek(0)
