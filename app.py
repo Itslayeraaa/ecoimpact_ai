@@ -69,4 +69,3 @@ if st.button("Calcular impacto"):
 
     # Gráfico de barras
     st.bar_chart(df.set_index("Categoría"))
-
