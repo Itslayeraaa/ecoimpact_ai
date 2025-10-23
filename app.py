@@ -39,6 +39,6 @@ transporte *= (1 - reduccion_transporte/100)
 if st.button("💚 Calcular impacto"):
     # Factores de emisión
     FE_ENERGIA = 0.233
-    FE_COMBUST_
+    FE_COMBUSTIBLE_
 
 
