@@ -50,12 +50,12 @@ st.markdown(f"<h2 style='color:green; text-align:center;'>Total de emisiones: {r
 st.markdown(f"<p style='text-align:center;'>Referencia recomendada: {BENCHMARK} kg CO2e</p>", unsafe_allow_html=True)
 
 # --- Gráfica comparativa ---
-df = pd.DataFrame({
+df_graf = pd.DataFrame({
     "Categoría": ["Energía", "Combustible", "Residuos", "Transporte", "Benchmark"],
     "Emisiones (kg CO2e)": [emisiones_energia, emisiones_combustible, emisiones_residuos, emisiones_transporte, BENCHMARK]
 })
 
-chart = alt.Chart(df).mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5).encode(
+chart = alt.Chart(df_graf).mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5).encode(
     x=alt.X("Categoría", sort=None, title=None),
     y=alt.Y("Emisiones (kg CO2e)", title="Emisiones (kg CO2e)"),
     color=alt.Color("Emisiones (kg CO2e)", scale=alt.Scale(scheme="greens")),
@@ -64,9 +64,13 @@ chart = alt.Chart(df).mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5).en
 
 st.altair_chart(chart, use_container_width=True)
 
-# --- Detalle por categoría ---
+# --- Detalle por categoría incluyendo Benchmark ---
 st.subheader("Detalle de emisiones por categoría")
-st.table(df[:-1].style.format({"Emisiones (kg CO2e)": "{:.2f}"}))
+df_detalle = pd.DataFrame({
+    "Categoría": ["Energía", "Combustible", "Residuos", "Transporte", "Benchmark"],
+    "Emisiones (kg CO2e)": [emisiones_energia, emisiones_combustible, emisiones_residuos, emisiones_transporte, BENCHMARK]
+})
+st.table(df_detalle.style.format({"Emisiones (kg CO2e)": "{:.2f}"}))
 
 # --- Generar PDF ---
 def generar_pdf():
@@ -77,7 +81,7 @@ def generar_pdf():
     pdf.ln(10)
     pdf.set_font("Arial", "", 12)
     
-    # Reemplazo de caracteres especiales para evitar UnicodeEncodeError
+    # Evitar errores Unicode
     pdf.cell(0, 10, f"Consumo de energia: {energia} kWh", ln=True)
     pdf.cell(0, 10, f"Consumo de combustible: {combustible} litros", ln=True)
     pdf.cell(0, 10, f"Residuos generados: {residuos} kg", ln=True)
