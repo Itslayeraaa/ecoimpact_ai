@@ -3,7 +3,7 @@ import random
 import pandas as pd
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="EcoImpact AI", layout="wide")
+st.set_page_config(page_title="EcoImpact AI", layout="wide", page_icon="🌱")
 
 # -------------------------
 # Título de la app
@@ -20,6 +20,7 @@ banners = [
     {"img":"https://via.placeholder.com/728x90.png?text=Publicidad+3","link":"https://example.com/ad3"}
 ]
 
+# Banner superior
 ad = random.choice(banners)
 st.image(ad["img"], use_column_width=True)
 st.markdown(f"[Visitar anunciante]({ad['link']})")
@@ -48,7 +49,7 @@ FE_RESIDUOS = 1.9
 FE_TRANSPORTE = 0.12
 
 # -------------------------
-# Cálculo
+# Cálculo y visualización
 # -------------------------
 if st.button("Calcular impacto"):
     emisiones_energia = energia * FE_ENERGIA
@@ -58,9 +59,21 @@ if st.button("Calcular impacto"):
 
     total_emisiones = emisiones_energia + emisiones_combustible + emisiones_residuos + emisiones_transporte
 
-    st.markdown(f"<h2 style='color:#2ca02c;'>🌍 Emisiones totales: {total_emisiones:.2f} kg CO₂e</h2>", unsafe_allow_html=True)
+    # Recuadro atractivo para el total de emisiones
+    st.markdown(f"""
+        <div style="
+            background-color:#2ca02c; 
+            padding:20px; 
+            border-radius:10px; 
+            text-align:center;
+            color:white;
+            font-size:24px;
+            font-weight:bold;">
+            🌍 Emisiones totales: {total_emisiones:.2f} kg CO₂e
+        </div>
+    """, unsafe_allow_html=True)
 
-    # Mostrar detalle en columnas
+    # Detalle en columnas
     col1, col2 = st.columns(2)
     with col1:
         st.metric("Energía (kg CO₂e)", f"{emisiones_energia:.2f}")
@@ -69,9 +82,7 @@ if st.button("Calcular impacto"):
         st.metric("Residuos (kg CO₂e)", f"{emisiones_residuos:.2f}")
         st.metric("Transporte (kg CO₂e)", f"{emisiones_transporte:.2f}")
 
-    # -------------------------
-    # Gráfica de barras moderna
-    # -------------------------
+    # Gráfica compacta
     datos = {
         "Categoría": ["Energía", "Combustible", "Residuos", "Transporte"],
         "Emisiones (kg CO₂e)": [emisiones_energia, emisiones_combustible, emisiones_residuos, emisiones_transporte]
@@ -79,30 +90,29 @@ if st.button("Calcular impacto"):
     df = pd.DataFrame(datos)
 
     st.subheader("Detalle gráfico de emisiones")
-    fig, ax = plt.subplots(figsize=(6,4), facecolor="none")
+    fig, ax = plt.subplots(figsize=(5,3), facecolor="none")
     categorias = df["Categoría"]
     valores = df["Emisiones (kg CO₂e)"]
     colores = ["#2ca02c", "#ff7f0e", "#1f77b4", "#d62728"]
 
-    bars = ax.bar(categorias, valores, color=colores, alpha=0.85, edgecolor="white", linewidth=1.5)
+    bars = ax.bar(categorias, valores, color=colores, alpha=0.85, edgecolor="white", linewidth=1.2)
     ax.set_facecolor("none")
-    ax.tick_params(colors='black', labelsize=12)
-    ax.set_ylabel("kg CO₂e", color="black", fontsize=12)
-    ax.set_title("Emisiones por categoría", color="black", fontsize=14)
+    ax.tick_params(colors='white', labelsize=10)
+    ax.set_ylabel("kg CO₂e", color="white", fontsize=10)
+    ax.set_title("Emisiones por categoría", color="white", fontsize=12)
 
     # Valores encima de cada barra
     for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2, height + 0.5, f'{height:.2f}', ha='center', va='bottom', color="black", fontsize=12)
+        ax.text(bar.get_x() + bar.get_width()/2, height + 0.5, f'{height:.2f}', ha='center', va='bottom', color="white", fontsize=10)
 
-    # Bordes superior y derecho ocultos
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
     st.pyplot(fig, transparent=True)
 
 # -------------------------
-# Segundo banner abajo
+# Banner inferior
 # -------------------------
 ad2 = random.choice(banners)
 st.markdown("---")
