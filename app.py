@@ -5,12 +5,9 @@ import altair as alt
 # Configuración de la página
 st.set_page_config(page_title="EcoImpact AI", layout="wide")
 
+# Título
 st.title("🌱 EcoImpact AI - Calculadora de Impacto Ambiental")
-st.markdown("Calcula tu impacto ambiental con todas las funcionalidades disponibles. Gratis para todos los usuarios.")
-
-# --- Espacio para anuncios ---
-st.subheader("📢 Anuncios")
-st.info("Este espacio puede usarse para banners, enlaces o mensajes publicitarios.")
+st.markdown("Calcula tu impacto ambiental y visualiza tus emisiones de forma clara y atractiva.")
 
 # --- Formulario de entrada ---
 st.header("Introduce los datos de tu empresa")
@@ -34,32 +31,23 @@ total_emisiones = emisiones_energia + emisiones_combustible + emisiones_residuos
 
 # --- Mostrar resultados ---
 st.subheader("📊 Resultados")
-st.metric("Emisiones totales (kg CO₂e)", round(total_emisiones, 2))
+st.markdown(f"<h2 style='color:green;'>Total de emisiones: {round(total_emisiones, 2)} kg CO₂e</h2>", unsafe_allow_html=True)
 
 df = pd.DataFrame({
     "Categoría": ["Energía", "Combustible", "Residuos", "Transporte"],
     "Emisiones (kg CO₂e)": [emisiones_energia, emisiones_combustible, emisiones_residuos, emisiones_transporte]
 })
 
-chart = alt.Chart(df).mark_bar().encode(
-    x="Categoría",
-    y="Emisiones (kg CO₂e)",
-    color=alt.Color("Emisiones (kg CO₂e)", scale=alt.Scale(scheme="greens"))
-).properties(width=600, height=400)
+# Gráfica de barras mejorada
+chart = alt.Chart(df).mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5).encode(
+    x=alt.X("Categoría", sort=None, title=None),
+    y=alt.Y("Emisiones (kg CO₂e)", title="Emisiones (kg CO₂e)"),
+    color=alt.Color("Emisiones (kg CO₂e)", scale=alt.Scale(scheme="greens")),
+    tooltip=["Categoría", "Emisiones (kg CO₂e)"]
+).properties(width=700, height=450)
 
 st.altair_chart(chart, use_container_width=True)
 
-# --- Información de planes (solo como referencia) ---
-st.markdown("---")
-st.subheader("Funcionalidades incluidas (basadas en todos los planes)")
-
-st.write("""
-- ✅ Calculadora de emisiones de energía, combustible, residuos y transporte  
-- ✅ Gráficas de barras para visualizar el impacto  
-- ✅ Exportar resultados a PDF (simulado en versión gratuita)  
-- ✅ Análisis de reducción de impacto (simulado)  
-- ✅ Información resumida de las emisiones por categoría  
-- ✅ Posibilidad de incluir anuncios o patrocinadores  
-""")
-
-st.markdown("**Nota:** Todas estas funciones están disponibles sin necesidad de suscripción mensual. Puedes disfrutar de la experiencia completa de manera gratuita.")
+# --- Detalle por categoría ---
+st.subheader("Detalle de emisiones por categoría")
+st.table(df.style.format({"Emisiones (kg CO₂e)": "{:.2f}"}))
