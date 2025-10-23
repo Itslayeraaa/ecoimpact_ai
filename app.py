@@ -1,5 +1,7 @@
 import streamlit as st
 import random
+import pandas as pd
+from fpdf import FPDF
 
 st.set_page_config(page_title="EcoImpact AI", layout="wide", page_icon="🌱")
 
@@ -106,6 +108,32 @@ if st.button("Calcular impacto"):
         porcentaje = int((emisiones_finales[cat]/emisiones[cat])*100) if emisiones[cat] != 0 else 0
         st.markdown(f"**{cat}**: {emisiones_finales[cat]:.2f} kg CO₂e ({porcentaje}% del original)")
         st.progress(porcentaje)
+
+    # -------------------------
+    # Botón de descarga PDF
+    # -------------------------
+    def generar_pdf():
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", "B", 16)
+        pdf.cell(0, 10, "EcoImpact AI - Reporte de Emisiones", ln=True, align="C")
+        pdf.ln(10)
+        pdf.set_font("Arial", "", 12)
+        for cat in emisiones:
+            pct = int((emisiones_finales[cat]/emisiones[cat])*100) if emisiones[cat]!=0 else 0
+            pdf.cell(0, 8, f"{cat}: {emisiones_finales[cat]:.2f} kg CO₂e ({pct}%)", ln=True)
+        pdf.ln(5)
+        pdf.cell(0, 8, f"Total emisiones actuales: {total_actual:.2f} kg CO₂e", ln=True)
+        pdf.cell(0, 8, f"Total emisiones tras reducción: {total_final:.2f} kg CO₂e", ln=True)
+        return pdf.output(dest="S").encode("latin-1")
+
+    pdf_file = generar_pdf()
+    st.download_button(
+        label="📄 Descargar PDF",
+        data=pdf_file,
+        file_name="reporte_emisiones.pdf",
+        mime="application/pdf"
+    )
 
 # -------------------------
 # Segundo banner abajo
