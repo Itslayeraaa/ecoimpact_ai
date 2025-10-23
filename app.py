@@ -1,96 +1,94 @@
 import streamlit as st
+import random
 import pandas as pd
 import matplotlib.pyplot as plt
-from fpdf import FPDF
-import io
 
-# --- Configuración de la página ---
 st.set_page_config(page_title="EcoImpact AI", layout="wide")
 
-# --- CSS para texto y inputs en blanco y fondo oscuro ---
-st.markdown(
-    """
-    <style>
-    body { background-color: #121212; color: white; }
-    .stTextInput>div>div>input { color: white; background-color: #1e1e1e; }
-    .stNumberInput>div>div>input { color: white; background-color: #1e1e1e; }
-    .stButton>button { color: white; background-color: #2e7d32; }
-    .stDataFrame { color: white; background-color: #1e1e1e; }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# -------------------------
+# Título de la app
+# -------------------------
+st.title("EcoImpact AI 🌱")
+st.markdown("Calcula el impacto ambiental de tu empresa fácilmente")
 
-st.title("Calculadora de Impacto Ambiental 🌱")
-st.markdown("Introduce los datos de tu empresa para calcular la huella de carbono.")
+# -------------------------
+# Banners de anuncios (rotativos)
+# -------------------------
+banners = [
+    {"img":"https://via.placeholder.com/728x90.png?text=Publicidad+1","link":"https://example.com/ad1"},
+    {"img":"https://via.placeholder.com/728x90.png?text=Publicidad+2","link":"https://example.com/ad2"},
+    {"img":"https://via.placeholder.com/728x90.png?text=Publicidad+3","link":"https://example.com/ad3"}
+]
 
-# --- Inputs ---
+ad = random.choice(banners)
+st.image(ad["img"], use_column_width=True)
+st.markdown(f"[Visitar anunciante]({ad['link']})")
+st.markdown("---")
+
+# -------------------------
+# Inputs de la calculadora
+# -------------------------
+st.subheader("Introduce tus datos")
 col1, col2 = st.columns(2)
 
 with col1:
-    energia = st.number_input("Consumo de energía (kWh)", min_value=0.0, step=1.0)
-    combustible = st.number_input("Combustible (litros)", min_value=0.0, step=1.0)
+    energia = st.number_input("Consumo de energía (kWh)", min_value=0.0, value=0.0, step=10.0)
+    combustible = st.number_input("Combustible usado (litros)", min_value=0.0, value=0.0, step=10.0)
 
 with col2:
-    residuos = st.number_input("Residuos generados (kg)", min_value=0.0, step=1.0)
-    transporte = st.number_input("Transporte (km)", min_value=0.0, step=1.0)
+    residuos = st.number_input("Residuos generados (kg)", min_value=0.0, value=0.0, step=1.0)
+    transporte = st.number_input("Transporte recorrido (km)", min_value=0.0, value=0.0, step=5.0)
 
-# --- Factores de emisión simplificados ---
+# -------------------------
+# Factores de emisión
+# -------------------------
 FE_ENERGIA = 0.233
 FE_COMBUSTIBLE = 2.68
 FE_RESIDUOS = 1.9
 FE_TRANSPORTE = 0.12
 
-# --- Cálculo de emisiones ---
-detalle = {
-    "Energía": energia * FE_ENERGIA,
-    "Combustible": combustible * FE_COMBUSTIBLE,
-    "Residuos": residuos * FE_RESIDUOS,
-    "Transporte": transporte * FE_TRANSPORTE
-}
-total_emisiones = sum(detalle.values())
+# -------------------------
+# Cálculo
+# -------------------------
+if st.button("Calcular impacto"):
+    emisiones_energia = energia * FE_ENERGIA
+    emisiones_combustible = combustible * FE_COMBUSTIBLE
+    emisiones_residuos = residuos * FE_RESIDUOS
+    emisiones_transporte = transporte * FE_TRANSPORTE
 
-# --- Mostrar resultados ---
-st.subheader("📊 Emisiones estimadas (kg CO₂e)")
-st.markdown(f"<h2 style='color:white'>{total_emisiones:.2f} kg CO₂e</h2>", unsafe_allow_html=True)
+    total_emisiones = emisiones_energia + emisiones_combustible + emisiones_residuos + emisiones_transporte
 
-df = pd.DataFrame(list(detalle.items()), columns=["Categoría", "Emisiones (kg CO₂e)"])
-st.dataframe(df.style.format("{:.2f}").background_gradient(subset=["Emisiones (kg CO₂e)"], cmap="Greens"))
+    st.success(f"🌍 Emisiones totales: **{total_emisiones:.2f} kg CO₂e**")
 
-# --- Gráfica de barras transparente ---
-fig, ax = plt.subplots(figsize=(6,4), facecolor="none")
-ax.bar(detalle.keys(), detalle.values(), color="#2e7d32", alpha=0.8)
-ax.set_facecolor("none")
-ax.tick_params(colors='white')
-plt.ylabel("kg CO₂e", color="white")
-plt.title("Distribución de Emisiones", color="white")
-st.pyplot(fig)
+    # Mostrar detalle en columnas
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Energía (kg CO₂e)", f"{emisiones_energia:.2f}")
+        st.metric("Combustible (kg CO₂e)", f"{emisiones_combustible:.2f}")
+    with col2:
+        st.metric("Residuos (kg CO₂e)", f"{emisiones_residuos:.2f}")
+        st.metric("Transporte (kg CO₂e)", f"{emisiones_transporte:.2f}")
 
-# --- Función para generar PDF ---
-def generar_pdf():
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", "B", 16)
-    pdf.set_text_color(0,0,0)  # texto negro dentro del PDF
-    pdf.cell(0, 10, "Informe de Impacto Ambiental", ln=True, align="C")
-    pdf.ln(10)
+    # -------------------------
+    # Gráfica de barras
+    # -------------------------
+    datos = {
+        "Categoría": ["Energía", "Combustible", "Residuos", "Transporte"],
+        "Emisiones (kg CO₂e)": [emisiones_energia, emisiones_combustible, emisiones_residuos, emisiones_transporte]
+    }
+    df = pd.DataFrame(datos)
 
-    for cat, val in detalle.items():
-        texto = f"{cat}: {val:.2f} kg CO₂e".encode('latin1', 'replace').decode('latin1')
-        pdf.set_font("Arial", "", 12)
-        pdf.cell(0, 10, texto, ln=True)
+    st.subheader("Detalle gráfico de emisiones")
+    fig, ax = plt.subplots()
+    ax.bar(df["Categoría"], df["Emisiones (kg CO₂e)"], color=["#2ca02c","#ff7f0e","#1f77b4","#d62728"])
+    ax.set_ylabel("kg CO₂e")
+    ax.set_title("Emisiones por categoría")
+    st.pyplot(fig)
 
-    total_text = f"Total de emisiones: {total_emisiones:.2f} kg CO₂e"
-    total_text = total_text.encode('latin1', 'replace').decode('latin1')
-    pdf.set_font("Arial", "B", 14)
-    pdf.cell(0, 10, total_text, ln=True)
-
-    return pdf.output(dest='S').encode('latin1')
-
-# --- Botón de descarga PDF ---
-st.download_button(
-    "📄 Descargar PDF",
-    data=generar_pdf(),
-    file_name="informe_emisiones.pdf",
-    mime="application/pdf"
-)
+# -------------------------
+# Segundo banner abajo
+# -------------------------
+ad2 = random.choice(banners)
+st.markdown("---")
+st.image(ad2["img"], use_column_width=True)
+st.markdown(f"[Visitar anunciante]({ad2['link']})")
