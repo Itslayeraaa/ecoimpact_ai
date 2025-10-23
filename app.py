@@ -1,26 +1,34 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import random
 
 st.set_page_config(page_title="EcoImpact AI", layout="wide", page_icon="🌱")
 
 # -------------------------
-# Título
+# Título de la app
 # -------------------------
 st.title("EcoImpact AI 🌱")
 st.markdown("Calcula el impacto ambiental de tu empresa fácilmente")
 
 # -------------------------
-# Banners de anuncios
+# Banner de Google AdSense arriba
 # -------------------------
-banners = [
-    {"img":"https://via.placeholder.com/728x90.png?text=Publicidad+1","link":"https://example.com/ad1"},
-    {"img":"https://via.placeholder.com/728x90.png?text=Publicidad+2","link":"https://example.com/ad2"},
-    {"img":"https://via.placeholder.com/728x90.png?text=Publicidad+3","link":"https://example.com/ad3"}
-]
+ad_html_top = """
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1003274537231191"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-1003274537231191"
+     data-ad-slot="1234567890"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+"""
+components.html(ad_html_top, height=100)
 
-ad = random.choice(banners)
-st.image(ad["img"], use_column_width=True)
-st.markdown(f"[Visitar anunciante]({ad['link']})")
 st.markdown("---")
 
 # -------------------------
@@ -80,16 +88,16 @@ if st.button("Calcular impacto"):
     total_final = sum(emisiones_finales.values())
 
     # -------------------------
-    # Recuadro de totales elegante
+    # Recuadro de totales
     # -------------------------
     st.markdown(f"""
     <div style="
-        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-        padding:20px;
-        border-radius:15px;
+        background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+        padding:15px;
+        border-radius:12px;
         text-align:center;
         color:white;
-        font-size:22px;
+        font-size:20px;
         font-weight:bold;">
         🌍 Total emisiones actuales: {total_actual:.2f} kg CO₂e<br>
         💡 Total emisiones tras reducción: {total_final:.2f} kg CO₂e
@@ -108,9 +116,8 @@ if st.button("Calcular impacto"):
         st.progress(porcentaje)
 
 # -------------------------
-# Segundo banner abajo
+# Banner de Google AdSense abajo
 # -------------------------
-ad2 = random.choice(banners)
+ad_html_bottom = ad_html_top  # Puedes cambiar slot si quieres otro anuncio
 st.markdown("---")
-st.image(ad2["img"], use_column_width=True)
-st.markdown(f"[Visitar anunciante]({ad2['link']})")
+components.html(ad_html_bottom, height=100)
