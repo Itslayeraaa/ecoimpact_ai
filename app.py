@@ -61,21 +61,29 @@ df = pd.DataFrame({
 })
 
 # ------------------------------
-# Resultados destacados
+# Resultados destacados con contraste
 # ------------------------------
-st.subheader("Resultados")
-st.metric("Emisiones totales (kg CO2e)", f"{total_emisiones:.2f}")
+st.subheader("Resultados Totales")
+st.markdown(
+    f"<h2 style='color:#00ffcc; background-color:#1f1f1f; padding:10px; border-radius:8px;'>"
+    f"{total_emisiones:.2f} kg CO₂e</h2>",
+    unsafe_allow_html=True
+)
+
 st.dataframe(df.style.background_gradient(subset=["Emisiones (kg CO2e)"], cmap="Greens"))
 
 # ------------------------------
-# Gráfica compacta con fondo transparente
+# Gráfica futurista sin fondo
 # ------------------------------
 fig, ax = plt.subplots(figsize=(6,4), dpi=100)
-ax.bar(df["Categoría"], df["Emisiones (kg CO2e)"], color=["#2ca02c","#ff7f0e","#1f77b4","#d62728"])
-ax.set_ylabel("kg CO2e")
-ax.set_title("Emisiones por categoría")
-fig.patch.set_alpha(0)
-st.pyplot(fig)
+fig.patch.set_alpha(0)  # fondo transparente
+ax.set_facecolor("none")
+ax.bar(df["Categoría"], df["Emisiones (kg CO2e)"], color=["#00ffcc","#ff6f61","#ffde59","#7f7fff"], edgecolor='black', linewidth=1.5)
+ax.set_ylabel("kg CO2e", color="#00ffcc")
+ax.set_title("Emisiones por categoría", color="#00ffcc")
+ax.tick_params(axis='x', colors="#00ffcc")
+ax.tick_params(axis='y', colors="#00ffcc")
+st.pyplot(fig, use_container_width=True)
 
 # ------------------------------
 # Generar PDF
